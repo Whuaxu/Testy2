@@ -25,6 +25,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   readonly messages = signal<Message[]>([]);
   readonly newMessage = signal('');
   readonly typingUser = signal<string | null>(null);
+  private previousConversationId = signal<string | null>(null);
   
   // Computed signals
   readonly isOnline = computed(() => {
@@ -51,24 +52,48 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     private conversationService: ConversationService,
     private wsService: WebSocketService
   ) {
+    // Effect to reload messages when conversation changes
+    effect(() => {
+      const conv = this.conversation();
+      if (conv && conv.id !== this.previousConversationId()) {
+        this.previousConversationId.set(conv.id);
+        this.loadMessages();
+      }
+    }, { allowSignalWrites: true });
+
     // Effect to handle new messages - only for current conversation
+    // Read conversation ID once outside the conditional to avoid dependency issues
     effect(() => {
       const message = this.wsService.newMessage();
-      const currentConvId = this.conversation().id;
+      if (!message) return;
       
-      if (message && message.conversationId === currentConvId) {
-        this.messages.update(msgs => [...msgs, message]);
-        this.shouldScrollToBottom = true;
+      const conv = this.conversation();
+      if (message.conversationId === conv.id) {
+        // Check if message already exists to prevent duplicates
+        const currentMessages = this.messages();
+        const messageExists = currentMessages.some(m => 
+          m.id === message.id || 
+          (m.content === message.content && 
+           m.senderId === message.senderId && 
+           Math.abs(new Date(m.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
+        );
+        
+        if (!messageExists) {
+          this.messages.update(msgs => [...msgs, message]);
+          this.shouldScrollToBottom = true;
+        }
       }
     }, { allowSignalWrites: true });
 
     // Effect to handle typing events - only for current conversation
     effect(() => {
       const typingData = this.wsService.typing();
-      const currentConvId = this.conversation().id;
+      if (!typingData) return;
+      
+      const conv = this.conversation();
       const currentUserId = this.currentUser()?.id;
       
-      if (typingData && typingData.conversationId === currentConvId && 
+      if (typingData.conversationId === conv.id && 
           typingData.userId !== currentUserId) {
         this.typingUser.set(typingData.isTyping ? typingData.username : null);
       }
@@ -76,7 +101,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.loadMessages();
+    // Messages are loaded by the effect when conversation changes
   }
 
   ngOnDestroy(): void {
@@ -132,23 +157,17 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     const content = this.newMessage().trim();
     if (!content) return;
 
-    const message: Message = {
-      id: '', // El backend debería generar este ID
-      conversationId: this.conversation().id,
-      senderId: this.currentUser()?.id || '',
-      content,
-      createdAt: new Date(),
-      read: false
-    };
-
     // Envía el mensaje al WebSocket
+    // No añadimos el mensaje localmente porque el servidor lo devolverá via WebSocket
     this.wsService.sendMessage(this.conversation().id, content);
-
-    // Añade el mensaje localmente para mostrarlo de inmediato
-    const updatedMessages = [...this.messages(), message];
-    this.messages.set(updatedMessages);
 
     // Limpia el input
     this.newMessage.set('');
+    
+    // Enviar señal de que dejamos de escribir
+    this.wsService.sendTyping(this.conversation().id, false);
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
   }
 }
