@@ -103,7 +103,7 @@ export class WebSocketServer {
       });
 
       // Handle new message
-      socket.on('send-message', async (data: {conversationId: string; content: string}, callback?: (response: {success: boolean; error?: string; message?: any}) => void) => {
+      socket.on('send-message', async (data: {conversationId: string; content: string}, callback?: (response: {success: boolean; error?: string; message?: unknown}) => void) => {
         try {
           const messageRepository = await this.app.getRepository(MessageRepository);
           const conversationRepository = await this.app.getRepository(ConversationRepository);
