@@ -25,6 +25,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   readonly messages = signal<Message[]>([]);
   readonly newMessage = signal('');
   readonly typingUser = signal<string | null>(null);
+  private previousConversationId = signal<string | null>(null);
   
   // Computed signals
   readonly isOnline = computed(() => {
@@ -54,7 +55,8 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     // Effect to reload messages when conversation changes
     effect(() => {
       const conv = this.conversation();
-      if (conv) {
+      if (conv && conv.id !== this.previousConversationId()) {
+        this.previousConversationId.set(conv.id);
         this.loadMessages();
       }
     }, { allowSignalWrites: true });
