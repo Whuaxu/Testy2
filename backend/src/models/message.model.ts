@@ -22,10 +22,16 @@ export class Message extends Entity {
   })
   content: string;
 
-  @belongsTo(() => User, {name: 'sender'})
+  @property({
+    type: 'string',
+    required: true,
+  })
   senderId: string;
 
-  @belongsTo(() => Conversation)
+  @property({
+    type: 'string',
+    required: true,
+  })
   conversationId: string;
 
   @property({
