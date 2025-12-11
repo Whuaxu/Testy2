@@ -103,7 +103,7 @@ export class WebSocketServer {
       });
 
       // Handle new message
-      socket.on('send-message', async (data: {conversationId: string; content: string}) => {
+      socket.on('send-message', async (data: {conversationId: string; content: string}, callback?: (response: {success: boolean; error?: string; message?: any}) => void) => {
         try {
           const messageRepository = await this.app.getRepository(MessageRepository);
           const conversationRepository = await this.app.getRepository(ConversationRepository);
@@ -142,9 +142,21 @@ export class WebSocketServer {
             }
           });
 
+          // Send acknowledgment to the sender
+          if (callback) {
+            callback({success: true, message: messageWithSender});
+          }
+
         } catch (error) {
           console.error('Error sending message:', error);
-          socket.emit('error', {message: 'Failed to send message'});
+          const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
+          
+          // Send error acknowledgment to the sender
+          if (callback) {
+            callback({success: false, error: errorMessage});
+          } else {
+            socket.emit('error', {message: errorMessage});
+          }
         }
       });
 
