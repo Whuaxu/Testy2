@@ -61,6 +61,7 @@ export class MessageController {
     // Create message
     const message = await this.messageRepository.create({
       ...messageData,
+      senderId,
       createdAt: new Date(),
       read: false,
     });
