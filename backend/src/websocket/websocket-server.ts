@@ -123,13 +123,21 @@ export class WebSocketServer {
             read: false,
           });
 
-          // Update conversation
-          await conversationRepository.updateById(data.conversationId, {
+          // Send immediate acknowledgment to prevent UI freeze
+          // This allows the UI to continue working while we complete the broadcast operations
+          if (callback) {
+            callback({success: true, message});
+          }
+
+          // Update conversation (async, don't block the callback)
+          conversationRepository.updateById(data.conversationId, {
             lastMessageId: message.id,
             updatedAt: new Date(),
+          }).catch(error => {
+            console.error('Error updating conversation:', error);
           });
 
-          // Get message with sender info
+          // Get message with sender info for broadcasting
           const messageWithSender = await messageRepository.findById(message.id!, {
             include: [{relation: 'sender'}],
           });
@@ -147,10 +155,6 @@ export class WebSocketServer {
               });
             }
           });
-
-          if (callback) {
-            callback({success: true, message: messageWithSender});
-          }
 
         } catch (error) {
           console.error('Error sending message:', error);
