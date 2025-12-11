@@ -134,7 +134,7 @@ export class WebSocketServer {
             lastMessageId: message.id,
             updatedAt: new Date(),
           }).catch(error => {
-            console.error('Error updating conversation:', error);
+            console.error(`Error updating conversation ${data.conversationId} with lastMessageId:`, error);
           });
 
           // Get message with sender info for broadcasting
