@@ -51,6 +51,14 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     private conversationService: ConversationService,
     private wsService: WebSocketService
   ) {
+    // Effect to reload messages when conversation changes
+    effect(() => {
+      const conv = this.conversation();
+      if (conv) {
+        this.loadMessages();
+      }
+    }, { allowSignalWrites: true });
+
     // Effect to handle new messages - only for current conversation
     effect(() => {
       const message = this.wsService.newMessage();
@@ -76,7 +84,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.loadMessages();
+    // Messages are loaded by the effect when conversation changes
   }
 
   ngOnDestroy(): void {
