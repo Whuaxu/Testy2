@@ -97,18 +97,18 @@ export class WebSocketService implements OnDestroy {
 
   sendMessage(conversationId: string, content: string): void {
     if (!this.socket) {
-      console.error('❌ WebSocket no está conectado');
+      console.error('❌ WebSocket is not connected');
       return;
     }
 
-    this.socket?.emit('send-message', { conversationId, content }, (response: {success: boolean; error?: string; message?: any}) => {
+    this.socket?.emit('send-message', { conversationId, content }, (response: {success: boolean; error?: string; message?: unknown}) => {
       if (response.success) {
-        console.log(`✅ Mensaje enviado exitosamente: ${content}`);
+        console.log(`✅ Message sent successfully: ${content}`);
       } else {
-        console.error(`❌ Error al enviar mensaje: ${response.error}`);
+        console.error(`❌ Error sending message: ${response.error}`);
       }
     });
-    console.log(`📤 Mensaje enviado: ${content} a la conversación ${conversationId}`);
+    console.log(`📤 Message sent: ${content} to conversation ${conversationId}`);
   }
 
   sendTyping(conversationId: string, isTyping: boolean): void {

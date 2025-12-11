@@ -17,6 +17,12 @@ interface ConnectedUser {
   username: string;
 }
 
+interface MessageResponse {
+  success: boolean;
+  error?: string;
+  message?: unknown;
+}
+
 export class WebSocketServer {
   private io: Server;
   private connectedUsers: Map<string, ConnectedUser> = new Map();
@@ -103,7 +109,7 @@ export class WebSocketServer {
       });
 
       // Handle new message
-      socket.on('send-message', async (data: {conversationId: string; content: string}, callback?: (response: {success: boolean; error?: string; message?: unknown}) => void) => {
+      socket.on('send-message', async (data: {conversationId: string; content: string}, callback?: (response: MessageResponse) => void) => {
         try {
           const messageRepository = await this.app.getRepository(MessageRepository);
           const conversationRepository = await this.app.getRepository(ConversationRepository);
