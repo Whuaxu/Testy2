@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chatapp-backend:latest
+    container_name: chatapp-backend
+    ports:
+      - "3001:3000"
+
+    environment:
+      - MONGODB_URI=mongodb://localhost:27017/chatapp
+
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+
+    depends_on:
+      - mongo
+
+    networks:
+      - app-network
+
+
+  mongo:
+    image: mongo:7.0
+    container_name: chatapp-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=chatapp
+    restart: unless-stopped
+
+    networks:
+      - app-network
+  
+
+volumes:
+  mongo_data:
+  
+networks:
+  app-network:
+

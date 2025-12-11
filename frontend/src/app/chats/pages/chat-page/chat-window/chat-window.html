@@ -1,0 +1,51 @@
+<div class="chat-window">
+    <div class="chat-header">
+        <div class="recipient-info">
+            <div class="recipient-avatar" [class.online]="isOnline()">
+                {{ otherParticipantName().charAt(0).toUpperCase() }}
+            </div>
+            <div class="recipient-details">
+                <span class="recipient-name">{{ otherParticipantName() }}</span>
+                <span class="recipient-status">
+                    @if (typingUser()) {
+                    {{ typingUser() }} está escribiendo...
+                    } @else if (isOnline()) {
+                    En línea
+                    } @else {
+                    Desconectado
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="messages-container" #messagesContainer>
+        @for (message of messages(); track message.id) {
+        <div class="message" [class.own]="message.senderId === currentUser()?.id"
+            [class.other]="message.senderId !== currentUser()?.id">
+            <div class="message-content">
+                <p>{{ message.content }}</p>
+                <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+            </div>
+        </div>
+        } @empty {
+        <div class="no-messages">
+            <p>No hay mensajes aún</p>
+            <p class="hint">Envía el primer mensaje</p>
+        </div>
+        }
+    </div>
+
+    <div class="message-input-container">
+        <input type="text" [ngModel]="newMessage()" (ngModelChange)="newMessage.set($event)"
+            (keyup.enter)="sendMessage()" (input)="onTyping()" placeholder="Escribe un mensaje..."
+            class="message-input">
+        <button class="send-button" (click)="sendMessage()" [disabled]="!newMessage().trim()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+        </button>
+    </div>
+</div>

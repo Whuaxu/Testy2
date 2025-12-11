@@ -1,0 +1,81 @@
+{
+  "name": "appchat",
+  "version": "0.0.1",
+  "description": "Chat application using Angular and Loopback",
+  "keywords": [
+    "loopback-application",
+    "loopback"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": "20 || 22 || 24"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "build:watch": "lb-tsc --watch",
+    "lint": "npm run eslint && npm run prettier:check",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
+    "prettier:check": "npm run prettier:cli -- -l",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "eslint": "lb-eslint --report-unused-disable-directives .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "pretest": "npm run rebuild",
+    "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
+    "posttest": "npm run lint",
+    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
+    "docker:build": "docker build -t appchat .",
+    "docker:run": "docker run -p 3000:3000 -d appchat",
+    "premigrate": "npm run build",
+    "migrate": "node ./dist/migrate",
+    "preopenapi-spec": "npm run build",
+    "openapi-spec": "node ./dist/openapi-spec",
+    "prestart": "npm run rebuild",
+    "start": "node -r source-map-support/register .",
+    "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
+    "rebuild": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "javier.pena <javierpb6@gmail.com>",
+  "license": "",
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "dependencies": {
+    "@loopback/authentication": "^12.0.8",
+    "@loopback/boot": "^8.0.7",
+    "@loopback/core": "^7.0.6",
+    "@loopback/repository": "^8.0.6",
+    "@loopback/rest": "^15.0.7",
+    "@loopback/rest-explorer": "^8.0.7",
+    "@loopback/service-proxy": "^8.0.6",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/lodash": "^4.17.21",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "isemail": "^3.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "loopback-connector-mongodb": "^6.3.1",
+    "socket.io": "^4.8.1",
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@loopback/build": "^12.0.6",
+    "@loopback/eslint-config": "^16.0.1",
+    "@loopback/testlab": "^8.0.6",
+    "@types/cors": "^2.8.19",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^16.18.126",
+    "@types/socket.io": "^3.0.1",
+    "eslint": "^8.57.1",
+    "source-map-support": "^0.5.21",
+    "typescript": "~5.2.2"
+  }
+}

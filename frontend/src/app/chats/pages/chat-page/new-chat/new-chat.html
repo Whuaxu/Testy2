@@ -1,0 +1,44 @@
+<div class="modal-overlay" (click)="close.emit()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Nueva Conversación</h3>
+            <button class="close-btn" (click)="close.emit()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="search-container">
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)"
+                    placeholder="Buscar usuario por nombre o email..." class="search-input" autocomplete="off">
+                @if (isSearching()) {
+                <div class="search-loading">Buscando...</div>
+                }
+            </div>
+            <div class="user-list">
+                @for (user of filteredUsers(); track user.id) {
+                <div class="user-item" (click)="selectUser(user)">
+                    <div class="user-avatar">
+                        {{ user.username.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">{{ user.username }}</span>
+                        <span class="user-email">{{ user.email }}</span>
+                    </div>
+                </div>
+                } @empty {
+                <div class="no-users">
+                    @if (searchQuery().length > 0 && !isSearching()) {
+                    <p>No se encontraron usuarios</p>
+                    } @else if (searchQuery().length === 0) {
+                    <p>Escribe para buscar usuarios</p>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

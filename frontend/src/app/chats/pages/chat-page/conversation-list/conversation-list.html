@@ -1,0 +1,31 @@
+<div class="conversation-list">
+    @for (conversation of conversations(); track conversation.id) {
+    <div class="conversation-item" [class.selected]="conversation.id === selectedConversationId()"
+        (click)="selectConversation(conversation)">
+        <div class="conversation-avatar" [class.online]="isParticipantOnline(conversation)">
+            {{ getOtherParticipantName(conversation).charAt(0).toUpperCase() }}
+        </div>
+        <div class="conversation-info">
+            <div class="conversation-header">
+                <span class="conversation-name">{{ getOtherParticipantName(conversation) }}</span>
+                @if (conversation.lastMessage) {
+                <span class="conversation-time">{{ formatTime(conversation.lastMessage.createdAt) }}</span>
+                }
+            </div>
+            @if (conversation.lastMessage) {
+            <div class="last-message">
+                {{ conversation.lastMessage.content | slice:0:40 }}{{ conversation.lastMessage.content.length > 40 ?
+                '...' : '' }}
+            </div>
+            } @else {
+            <div class="last-message empty">Sin mensajes</div>
+            }
+        </div>
+    </div>
+    } @empty {
+    <div class="empty-list">
+        <p>No tienes conversaciones</p>
+        <p class="hint">Inicia una nueva conversación</p>
+    </div>
+    }
+</div>
